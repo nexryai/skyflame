@@ -1,0 +1,28 @@
+{
+    "name": "Skyflame API Dev",
+    "image": "node:22",
+    "features": {
+        "ghcr.io/devcontainers-extra/features/pnpm:2": {},
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+    "workspaceFolder": "/workspace",
+    "remoteUser": "node",
+    "overrideCommand": true,
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode"
+            ],
+            "settings": {
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.linkedEditing": true,
+                "editor.formatOnPaste": true,
+                "editor.formatOnSave": false,
+                "html.format.wrapLineLength": 0,
+                "editor.quickSuggestions": {
+                    "strings": "on"
+                }
+            }
+        }
+    }
+}
