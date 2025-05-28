@@ -14,7 +14,6 @@ let envLoaded = false;
 
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
-	.decorate('redis', null as Redis | null)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
 	.onError(({ code, error, set }) => {
 		// 想定されないエラーは全部500
@@ -37,19 +36,20 @@ const app = new Elysia({ aot: false, precompile: true })
 			return ctx.status(400, 'Latitude and longitude are required.');
 		}
 
+		const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
 		const cacheKey = `weather:overview:${lat}:${lon}`;
-		const cachedData = await ctx.redis?.get(cacheKey);
+		const cachedData = await redis?.get(cacheKey);
 
 		if (cachedData) {
 			return cachedData;
 		}
 
-		if (!ctx.redis) {
+		if (!redis) {
 			console.warn('Redis is not configured. Skipping cache.');
 		}
 
 		const weatherData = await ctx.weatherService.getOverview(lat as number, lon as number);
-		await ctx.redis?.set(cacheKey, weatherData);
+		await redis?.set(cacheKey, weatherData);
 
 		return weatherData;
 	})
@@ -74,7 +74,6 @@ export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		if (!envLoaded) {
 			app.decorate('env', env);
-			app.decorate('redis', env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(env) : null);
 			envLoaded = true;
 		}
 
