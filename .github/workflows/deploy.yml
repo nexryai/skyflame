@@ -15,6 +15,15 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
       - name: Deploy with wrangler
         uses: cloudflare/wrangler-action@v3
         with:
