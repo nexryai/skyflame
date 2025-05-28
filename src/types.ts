@@ -1,0 +1,91 @@
+export interface OpenMeteoWeatherData {
+	latitude: number;
+	longitude: number;
+	generationtime_ms: number;
+	utc_offset_seconds: number;
+	timezone: string;
+	timezone_abbreviation: string;
+	elevation: number;
+	current_units: {
+		time: string;
+		interval: string;
+		temperature_2m: string;
+		weather_code: string;
+		rain: string;
+		wind_speed_10m: string;
+		wind_direction_10m: string;
+		wind_gusts_10m: string;
+		pressure_msl: string;
+		surface_pressure: string;
+		precipitation: string;
+		is_day: string;
+		apparent_temperature: string;
+		relative_humidity_2m: string;
+		cloud_cover: string;
+		snowfall: string;
+		showers: string;
+	};
+	current: {
+		time: string;
+		interval: number;
+		temperature_2m: number;
+		weather_code: number;
+		rain: number;
+		wind_speed_10m: number;
+		wind_direction_10m: number;
+		wind_gusts_10m: number;
+		pressure_msl: number;
+		surface_pressure: number;
+		precipitation: number;
+		is_day: number;
+		apparent_temperature: number;
+		relative_humidity_2m: number;
+		cloud_cover: number;
+		snowfall: number;
+		showers: number;
+	};
+	hourly_units: {
+		time: string;
+		temperature_2m: string;
+		weather_code: string;
+		rain: string;
+		precipitation_probability: string;
+		precipitation: string;
+		showers: string;
+		snowfall: string;
+	};
+	hourly: {
+		time: string[];
+		temperature_2m: number[];
+		weather_code: number[];
+		rain: number[];
+		precipitation_probability: number[];
+		precipitation: number[];
+		showers: number[];
+		snowfall: number[];
+	};
+	daily_units: {
+		time: string;
+		weather_code: string;
+		sunrise: string;
+		sunset: string;
+		uv_index_max: string;
+		uv_index_clear_sky_max: string;
+		temperature_2m_max: string;
+		temperature_2m_min: string;
+		daylight_duration: string;
+		sunshine_duration: string;
+	};
+	daily: {
+		time: string[];
+		weather_code: number[];
+		sunrise: string[];
+		sunset: string[];
+		uv_index_max: number[];
+		uv_index_clear_sky_max: number[];
+		temperature_2m_max: number[];
+		temperature_2m_min: number[];
+		daylight_duration: number[];
+		sunshine_duration: number[];
+	};
+}
