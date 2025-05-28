@@ -74,7 +74,7 @@ export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		if (!envLoaded) {
 			app.decorate('env', env);
-			app.decorate('redis', env.UPSTASH_REDIS_REST_TOKEN ? Redis.fromEnv(env) : null);
+			app.decorate('redis', env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(env) : null);
 			envLoaded = true;
 		}
 
