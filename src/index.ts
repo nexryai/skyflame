@@ -44,6 +44,10 @@ const app = new Elysia({ aot: false, precompile: true })
 			return cachedData;
 		}
 
+		if (!ctx.redis) {
+			console.warn('Redis is not configured. Skipping cache.');
+		}
+
 		const weatherData = await ctx.weatherService.getOverview(lat as number, lon as number);
 		await ctx.redis?.set(cacheKey, weatherData);
 
