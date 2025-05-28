@@ -15,6 +15,19 @@ let envLoaded = false;
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
+	.onError(({ code, error, set }) => {
+		// 想定されないエラーは全部500
+		if (!['VALIDATION', 'NOT_FOUND'].includes(code as string)) {
+			console.error(`ERROR OCCURRED: ${error}`);
+			console.error('===== STACK =====');
+			// @ts-ignore
+			console.error(error.stack);
+			console.error('=================');
+			set.status = 500;
+			return 'An unexpected error occurred. The request was aborted.';
+		}
+	})
+
 	.get('/v1/overview', async (ctx) => {
 		return ctx.weatherService.getOverview(35.4658224, 139.6199079);
 	})
@@ -25,10 +38,10 @@ const app = new Elysia({ aot: false, precompile: true })
 
 		return test;
 	})
- 	.get('/healthz', async (ctx) => {
-		ctx.env.SKYFLAME_KV.put('test', 'Hello, World!')
+	.get('/healthz', async (ctx) => {
+		ctx.env.SKYFLAME_KV.put('test', 'Hello, World!');
 
-		const test = await ctx.env.SKYFLAME_KV.get('test')
+		const test = await ctx.env.SKYFLAME_KV.get('test');
 
 		return test;
 	});
