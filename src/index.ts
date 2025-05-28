@@ -29,7 +29,14 @@ const app = new Elysia({ aot: false, precompile: true })
 	})
 
 	.get('/v1/overview', async (ctx) => {
-		return ctx.weatherService.getOverview(35.4658224, 139.6199079);
+		let lat = ctx.query.lat || ctx.request.cf?.latitude;
+		let lon = ctx.query.lon || ctx.request.cf?.longitude;
+
+		if (!lat || !lon) {
+			return ctx.status(400, 'Latitude and longitude are required.');
+		}
+
+		return ctx.weatherService.getOverview(lat as number, lon as number);
 	})
 	.get('/redis', async (ctx) => {
 		const redis = Redis.fromEnv(ctx.env);
