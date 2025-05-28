@@ -1,5 +1,7 @@
 import Elysia from 'elysia';
 import { Redis } from '@upstash/redis/cloudflare';
+import { fetchWeatherData } from './services/openmeteo';
+import { WeatherService } from './services/weather';
 
 
 interface Env {
@@ -9,19 +11,24 @@ interface Env {
 }
 
 let envLoaded = false;
+
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
-	.get('/redis', async ({ env }) => {
-		const redis = Redis.fromEnv(env);
+	.decorate('weatherService', new WeatherService(fetchWeatherData))
+	.get('/v1/overview', async (ctx) => {
+		return ctx.weatherService.getOverview(35.4658224, 139.6199079);
+	})
+	.get('/redis', async (ctx) => {
+		const redis = Redis.fromEnv(ctx.env);
 		redis.set('test', 'Hello, World!');
 		const test = await redis.get('test');
 
 		return test;
 	})
- 	.get('/healthz', async ({ env }) => {
-		env.SKYFLAME_KV.put('test', 'Hello, World!')
-		
-		const test = await env.SKYFLAME_KV.get('test')
+ 	.get('/healthz', async (ctx) => {
+		ctx.env.SKYFLAME_KV.put('test', 'Hello, World!')
+
+		const test = await ctx.env.SKYFLAME_KV.get('test')
 
 		return test;
 	});
