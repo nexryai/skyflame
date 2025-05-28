@@ -1,13 +1,23 @@
 import Elysia from 'elysia';
+import { Redis } from '@upstash/redis/cloudflare';
 
 
 interface Env {
 	SKYFLAME_KV: KVNamespace;
+	UPSTASH_REDIS_REST_TOKEN: string;
+	UPSTASH_REDIS_REST_URL: string;
 }
 
 let envLoaded = false;
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
+	.get('/redis', async ({ env }) => {
+		const redis = Redis.fromEnv(env);
+		redis.set('test', 'Hello, World!');
+		const test = await redis.get('test');
+
+		return test;
+	})
  	.get('/healthz', async ({ env }) => {
 		env.SKYFLAME_KV.put('test', 'Hello, World!')
 		
