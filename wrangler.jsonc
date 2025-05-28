@@ -10,7 +10,14 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
 		"enabled": true
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SKYFLAME_KV",
+			"id": "9bff2d86c2aa4c879b8d9d32315d3c05",
+			"preview_id": "879e7e01079c4a698ca7ed019454cef2"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

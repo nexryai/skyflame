@@ -1,11 +1,19 @@
 import Elysia from 'elysia';
 
 
+interface Env {
+	SKYFLAME_KV: KVNamespace;
+}
+
 let envLoaded = false;
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
  	.get('/healthz', async ({ env }) => {
-		return 'I\'m OK!';
+		env.SKYFLAME_KV.put('test', 'Hello, World!')
+		
+		const test = await env.SKYFLAME_KV.get('test')
+
+		return test;
 	});
 
 app.compile();
