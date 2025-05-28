@@ -14,6 +14,7 @@ let envLoaded = false;
 
 const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
+	.decorate('redis', null as Redis | null)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
 	.onError(({ code, error, set }) => {
 		// 想定されないエラーは全部500
@@ -29,14 +30,24 @@ const app = new Elysia({ aot: false, precompile: true })
 	})
 
 	.get('/v1/overview', async (ctx) => {
-		let lat = ctx.query.lat || ctx.request.cf?.latitude;
-		let lon = ctx.query.lon || ctx.request.cf?.longitude;
+		const lat = ctx.query.lat || ctx.request.cf?.latitude;
+		const lon = ctx.query.lon || ctx.request.cf?.longitude;
 
 		if (!lat || !lon) {
 			return ctx.status(400, 'Latitude and longitude are required.');
 		}
 
-		return ctx.weatherService.getOverview(lat as number, lon as number);
+		const cacheKey = `weather:overview:${lat}:${lon}`;
+		const cachedData = await ctx.redis?.get(cacheKey);
+
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const weatherData = await ctx.weatherService.getOverview(lat as number, lon as number);
+		await ctx.redis?.set(cacheKey, weatherData);
+
+		return weatherData;
 	})
 	.get('/redis', async (ctx) => {
 		const redis = Redis.fromEnv(ctx.env);
@@ -59,6 +70,7 @@ export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		if (!envLoaded) {
 			app.decorate('env', env);
+			app.decorate('redis', env.UPSTASH_REDIS_REST_TOKEN ? Redis.fromEnv(env) : null);
 			envLoaded = true;
 		}
 
