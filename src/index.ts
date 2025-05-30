@@ -52,11 +52,11 @@ const app = new Elysia({ aot: false })
 				return cachedData;
 			}
 
-			const weatherData = await ctx.query.withDailySummary 
+			const weatherData = ctx.query.withDailySummary 
 				? ctx.skyframeWeatherService.getOverview(lat as number, lon as number) 
 				: ctx.weatherService.getOverview(lat as number, lon as number);
 			
-			await redis?.set(cacheKey, weatherData, {
+			await redis?.set(cacheKey, await weatherData, {
 				// 30 minutes cache duration
 				ex: 1800,
 			});
