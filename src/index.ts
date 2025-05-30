@@ -17,8 +17,14 @@ const app = new Elysia({ aot: false })
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
 	.decorate('skyframeWeatherService', new SkyframeWeatherService(fetchWeatherData))
 	.onError(({ code, error, set }) => {
-		// 想定されないエラーは全部500
+		if (code === 'VALIDATION') {
+			set.status = 400;
+			// @ts-ignore
+			return `Validation error: ${error.summary}`;
+		}
+
 		if (!['VALIDATION', 'NOT_FOUND'].includes(code as string)) {
+			// 想定されないエラーは全部500
 			console.error(`ERROR OCCURRED: ${error}`);
 			console.error('===== STACK =====');
 			// @ts-ignore
