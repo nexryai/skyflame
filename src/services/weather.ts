@@ -39,7 +39,7 @@ export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hou
 
 export interface SkyframeWeatherOverview extends WeatherOverview {
 	// 翌日以降の天気を適切に表示するための拡張
-	dailySummary: Record<
+	daily_summary: Record<
 		string, // 該当する日
 		// 天気の変動を格納
 		Record<
@@ -181,7 +181,7 @@ export class SkyframeWeatherService extends WeatherService implements ISkyframeW
 
 		return {
 			...overview,
-			dailySummary,
+			daily_summary: dailySummary,
 		} as SkyframeWeatherOverview;
 	}
 }
