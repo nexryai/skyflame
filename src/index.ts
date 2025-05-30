@@ -16,10 +16,10 @@ const app = new Elysia({ aot: false })
 	.decorate('env', {} as Env)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
 	.decorate('skyframeWeatherService', new SkyframeWeatherService(fetchWeatherData))
-	.onError(({ code, error, set }) => {
+	.onError(({ code, error, set, body }) => {
 		if (code === 'VALIDATION') {
 			set.status = 400;
-			return `Validation error: ${error.message}`;
+			return "Invalid request format.";
 		}
 
 		if (!['VALIDATION', 'NOT_FOUND'].includes(code as string)) {
