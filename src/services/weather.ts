@@ -108,7 +108,7 @@ export class WeatherService implements IWeatherService {
 }
 
 export class SkyframeWeatherService extends WeatherService implements ISkyframeWeatherService {
-	// 要約において同一の転機として扱うWMOの天気コードの類似性を定義
+	// 要約において同一の天気として扱うWMOの天気コードの類似性を定義
 	private readonly WMOWeatherCodeSimilarity: Array<Array<number>> = [
 		[0, 1, 2, 3], // 晴れ〜曇り
 		[51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82], // 雨
