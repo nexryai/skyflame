@@ -19,8 +19,7 @@ const app = new Elysia({ aot: false })
 	.onError(({ code, error, set }) => {
 		if (code === 'VALIDATION') {
 			set.status = 400;
-			// @ts-ignore
-			return `Validation error: ${error.summary}`;
+			return `Validation error: ${error.message}`;
 		}
 
 		if (!['VALIDATION', 'NOT_FOUND'].includes(code as string)) {
