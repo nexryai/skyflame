@@ -72,6 +72,10 @@ const app = new Elysia({ aot: false })
 		}
 	)
 
+	.onRequest((ctx) => {
+		ctx.set.headers['Access-Control-Allow-Origin'] = '*';
+	})
+
 	.get('/redis', async (ctx) => {
 		const redis = Redis.fromEnv(ctx.env);
 		redis.set('test', 'Hello, World!');
