@@ -37,7 +37,7 @@ export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hou
 	>;
 }
 
-export interface SkyframeWeatherOverview extends WeatherOverview {
+export interface SkyflameWeatherOverview extends WeatherOverview {
 	// 翌日以降の天気を適切に表示するための拡張
 	daily_summary: Record<
 		string, // 該当する日
@@ -62,8 +62,8 @@ export interface IWeatherService {
 	getOverview(lat: number, lon: number): Promise<WeatherOverview>;
 }
 
-export interface ISkyframeWeatherService {
-	getOverview(lat: number, lon: number): Promise<SkyframeWeatherOverview>;
+export interface ISkyflameWeatherService {
+	getOverview(lat: number, lon: number): Promise<SkyflameWeatherOverview>;
 }
 
 
@@ -107,14 +107,14 @@ export class WeatherService implements IWeatherService {
 	}
 }
 
-export class SkyframeWeatherService extends WeatherService implements ISkyframeWeatherService {
+export class SkyflameWeatherService extends WeatherService implements ISkyflameWeatherService {
 	// 要約において同一の天気として扱うWMOの天気コードの類似性を定義
 	private readonly WMOWeatherCodeSimilarity: Array<Array<number>> = [
 		[0, 1, 2, 3], // 晴れ〜曇り
 		[51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82], // 雨
 	];
 
-	public async getOverview(lat: number, lon: number): Promise<SkyframeWeatherOverview> {
+	public async getOverview(lat: number, lon: number): Promise<SkyflameWeatherOverview> {
 		const overview = await super.getOverview(lat, lon);
 
 		const dailySummary: Record<string, any> = {};
@@ -182,6 +182,6 @@ export class SkyframeWeatherService extends WeatherService implements ISkyframeW
 		return {
 			...overview,
 			daily_summary: dailySummary,
-		} as SkyframeWeatherOverview;
+		} as SkyflameWeatherOverview;
 	}
 }

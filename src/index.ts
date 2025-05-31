@@ -1,7 +1,7 @@
 import Elysia, { t } from 'elysia';
 import { Redis } from '@upstash/redis/cloudflare';
 import { fetchWeatherData } from './services/openmeteo';
-import { SkyframeWeatherService, WeatherService } from './services/weather';
+import { SkyflameWeatherService, WeatherService } from './services/weather';
 
 
 interface Env {
@@ -15,7 +15,7 @@ let envLoaded = false;
 const app = new Elysia({ aot: false })
 	.decorate('env', {} as Env)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
-	.decorate('skyframeWeatherService', new SkyframeWeatherService(fetchWeatherData))
+	.decorate('skyflameWeatherService', new SkyflameWeatherService(fetchWeatherData))
 	.onError(({ code, error, set, body }) => {
 		if (code === 'VALIDATION') {
 			set.status = 400;
@@ -53,7 +53,7 @@ const app = new Elysia({ aot: false })
 			}
 
 			const weatherData = ctx.query.withDailySummary 
-				? ctx.skyframeWeatherService.getOverview(lat as number, lon as number) 
+				? ctx.skyflameWeatherService.getOverview(lat as number, lon as number) 
 				: ctx.weatherService.getOverview(lat as number, lon as number);
 			
 			await redis?.set(cacheKey, await weatherData, {
