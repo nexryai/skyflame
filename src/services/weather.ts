@@ -145,7 +145,7 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 							// weather_codeが大きい方が悪天候を示す傾向にあるため
 							daySummary[prevKey].weather_code = Math.max(currentWeatherCode, prevHourWeatherCode);
 
-							daySummary[prevKey].arrow_length += 1; // 矢印の長さを増やす
+							daySummary[prevKey].arrow_length += 1;
 							return;
 						}
 
@@ -156,7 +156,24 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 
 						if (isSimilar) {
 							daySummary[prevKey].weather_code = Math.max(currentWeatherCode, prevHourWeatherCode);
-							daySummary[prevKey].arrow_length += 1; // 矢印の長さを増やす
+							daySummary[prevKey].arrow_length += 1;
+							return;
+						}
+
+						const parsedTime = new Date(time);
+						const parsedPrevKey = new Date(prevKey);
+
+						// 自身がAM 6:00以前のデータかつprevKeyのデータもそうである場合、prevKeyのデータを削除する
+						// 早朝のデータがやたら多くても意味がないため
+						if (parsedTime.getHours() <= 6 && parsedPrevKey.getHours() < 6) {
+							delete daySummary[prevKey];
+						}
+
+						// 自身が22:00以降のデータかつprevKeyのデータもそうである場合
+						if (parsedTime.getHours() > 22 && parsedPrevKey.getHours() >= 22) {
+							// prevKeyのweather_codeを大きい方で上書きしてこのデータは無視する
+							daySummary[prevKey].weather_code = Math.max(currentWeatherCode, prevHourWeatherCode);
+							daySummary[prevKey].arrow_length += 1;
 							return;
 						}
 					}
