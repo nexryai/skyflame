@@ -12,7 +12,7 @@ interface Env {
 
 let envLoaded = false;
 
-const app = new Elysia({ aot: false })
+const app = new Elysia({ aot: false, precompile: true })
 	.decorate('env', {} as Env)
 	.decorate('weatherService', new WeatherService(fetchWeatherData))
 	.decorate('skyflameWeatherService', new SkyflameWeatherService(fetchWeatherData))
