@@ -135,7 +135,7 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 
 						// 前の時間の天気コードと現在の時間の天気コードが同じ場合はスキップ
 						if (currentWeatherCode === prevHourWeatherCode) {
-							daySummary[prevKey].arrow_length += 1; // 矢印の長さを増やす
+							daySummary[prevKey].arrow_length += 1;
 							return;
 						}
 
