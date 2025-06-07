@@ -1,5 +1,5 @@
 import { IWeatherFetcher } from './openmeteo';
-import { OpenMeteoWeatherData } from '../types';
+import { OpenMeteoWeatherData, WindSpeedUnit } from '../types';
 
 
 // 指定されたプロパティをanyにし、継承先で任意の型に上書きできるようにする
@@ -103,6 +103,32 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 		[51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82], // 雨
 	];
 
+	private getBeaufortWindScale(windSpeed: number, unit: WindSpeedUnit): number {
+		if (unit === WindSpeedUnit.KMH) {
+			windSpeed = windSpeed / 3.6; // km/hからm/sに変換
+		} else if (unit === WindSpeedUnit.MPH) {
+			windSpeed = windSpeed * 0.44704; // mphからm/sに変換
+		} else if (unit === WindSpeedUnit.KNOT) {
+			windSpeed = windSpeed * 0.514444; // ノットからm/sに変換
+		}
+
+		// Beaufort階級の計算
+		// ref: https://ja.wikipedia.org/wiki/ビューフォート風力階級
+		if (windSpeed < 0.3) return 0;
+		if (windSpeed < 1.6) return 1;
+		if (windSpeed < 3.4) return 2;
+		if (windSpeed < 5.5) return 3;
+		if (windSpeed < 8.0) return 4;
+		if (windSpeed < 10.8) return 5;
+		if (windSpeed < 13.9) return 6;
+		if (windSpeed < 17.2) return 7;
+		if (windSpeed < 20.8) return 8;
+		if (windSpeed < 24.5) return 9;
+		if (windSpeed < 28.5) return 10;
+		if (windSpeed < 32.7) return 11;
+		return 12;
+	}
+
 	public async getOverview(lat: number, lon: number): Promise<SkyflameWeatherOverview> {
 		// 親クラスのメソッドを呼び出し、基本的なWeatherOverviewを取得
 		const baseOverview = await super.getOverview(lat, lon);
@@ -186,14 +212,17 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 			};
 
 			return acc;
-		}, {} as SkyflameWeatherOverview['daily']); 
+		}, {} as SkyflameWeatherOverview['daily']);
 
 		return {
 			...baseOverview,
 			daily: newDaily,
 			current: {
 				...baseOverview.current,
-				beaufort_wind_scale: 0,
+				beaufort_wind_scale: this.getBeaufortWindScale(
+					baseOverview.current.wind_speed_10m,
+					baseOverview.current_units.wind_speed_10m
+				),
 			},
 		} as const satisfies SkyflameWeatherOverview;
 	}

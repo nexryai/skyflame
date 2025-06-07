@@ -1,3 +1,10 @@
+export enum WindSpeedUnit {
+	MS = 'm/s',
+	KMH = 'km/h',
+	MPH = 'mph',
+	KNOT = 'knots',
+}
+
 export interface OpenMeteoWeatherData {
 	latitude: number;
 	longitude: number;
@@ -12,9 +19,9 @@ export interface OpenMeteoWeatherData {
 		temperature_2m: string;
 		weather_code: string;
 		rain: string;
-		wind_speed_10m: string;
+		wind_speed_10m: WindSpeedUnit;
 		wind_direction_10m: string;
-		wind_gusts_10m: string;
+		wind_gusts_10m: WindSpeedUnit;
 		pressure_msl: string;
 		surface_pressure: string;
 		precipitation: string;
