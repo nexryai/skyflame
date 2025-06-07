@@ -6,6 +6,8 @@ type Overwritable<T, K extends keyof T> = {
 	[P in keyof T]: P extends K ? any : T[P];
 };
 
+type Extend<T, U> = Omit<T, keyof U> & U;
+
 // 本来であればOpen-Meteoの型とは別に定義するべきな気もするが、Open-Meteo自体はOSSなのでロックインのリスクがそこまで高くないこと、
 // 別のソースに切り替える際には少なからず取得できない情報が出てきて互換性の維持は結局できないと思われる点を踏まえ、型を拡張する形で実装する
 export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hourly' | 'daily'> {
@@ -35,6 +37,7 @@ export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hou
 			sunshine_duration: number;
 		}
 	>;
+	current: Extend<OpenMeteoWeatherData['current'], { beaufort_wind_scale: number }>;
 }
 
 export interface SkyflameWeatherOverview extends WeatherOverview {
