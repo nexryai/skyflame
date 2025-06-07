@@ -12,6 +12,11 @@ type Flatten<T> = {
 	[P in keyof T]: T[P] extends Array<infer U> ? U : T[P];
 };
 
+// Record<K, V> 型を受け取り、その値 V に新しいプロパティを追加する
+type AddPropertyToRecordValue<R extends Record<any, any>, P extends string | number | symbol, T> = {
+    [K in keyof R]: R[K] & { [key in P]: T };
+};
+
 // 本来であればOpen-Meteoの型とは別に定義するべきな気もするが、Open-Meteo自体はOSSなのでロックインのリスクがそこまで高くないこと、
 // 別のソースに切り替える際には少なからず取得できない情報が出てきて互換性の維持は結局できないと思われる点を踏まえ、型を拡張する形で実装する
 export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hourly' | 'daily'> {
@@ -27,18 +32,18 @@ export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hou
 
 export interface SkyflameWeatherOverview extends WeatherOverview {
 	// 翌日以降の天気を適切に表示するための拡張
-	daily_summary: Record<
-		string, // 該当する日
-		// 天気の変動を格納
-		Record<
-			string, // 時間
-			Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time'> & { 
-				arrow_length: number; 
+	daily: AddPropertyToRecordValue<WeatherOverview['daily'], 
+		'summary', Record<
+			string, // 時間キー (e.g., "2025-06-08T09:00")
+			Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time' | 'rain' | 'temperature_2m'> & {
+				temperature_2m_max: number;
+				temperature_2m_min: number;
+				arrow_length: number;
 			}
 		>
 	>;
-	current: OpenMeteoWeatherData['current'] & { 
-		beaufort_wind_scale: number 
+	current: OpenMeteoWeatherData['current'] & {
+		beaufort_wind_scale: number;
 	};
 }
 
@@ -87,7 +92,7 @@ export class WeatherService implements IWeatherService {
 				};
 				return acc;
 			}, {} as Record<string, any>),
-		} as WeatherOverview;
+		} as const satisfies WeatherOverview;
 	}
 }
 
@@ -99,23 +104,22 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 	];
 
 	public async getOverview(lat: number, lon: number): Promise<SkyflameWeatherOverview> {
-		const overview = await super.getOverview(lat, lon);
+		// 親クラスのメソッドを呼び出し、基本的なWeatherOverviewを取得
+		const baseOverview = await super.getOverview(lat, lon);
 
-		const dailySummary: Record<string, any> = {};
-
-		Object.keys(overview.daily).forEach((day) => {
-			const dailyData = overview.daily[day];
-			const timeKeys = Object.keys(overview.hourly);
-			const daySummary: Record<string, any> = {};
+		// baseOverview.dailyを元に、summaryプロパティを持つ新しいdailyオブジェクトを生成
+		const newDaily = Object.entries(baseOverview.daily).reduce((acc, [day, dailyData]) => {
+			const daySummary: SkyflameWeatherOverview['daily'][string]['summary'] = {};
+			const timeKeys = Object.keys(baseOverview.hourly);
 
 			let prevKey: string | null = null;
 			timeKeys.forEach((time) => {
-				const hourData = overview.hourly[time];
+				const hourData = baseOverview.hourly[time];
 
 				if (time.startsWith(day)) {
 					if (prevKey) {
 						const currentWeatherCode = hourData.weather_code;
-						const prevHourWeatherCode = overview.hourly[prevKey].weather_code;
+						const prevHourWeatherCode = baseOverview.hourly[prevKey].weather_code;
 
 						// 前の時間の天気コードと現在の時間の天気コードが同じ場合はスキップ
 						if (currentWeatherCode === prevHourWeatherCode) {
@@ -128,7 +132,6 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 							// prevDataの数値よりcurrentの方が大きい場合、currentのweather_codeをprevDataに上書き
 							// weather_codeが大きい方が悪天候を示す傾向にあるため
 							daySummary[prevKey].weather_code = Math.max(currentWeatherCode, prevHourWeatherCode);
-
 							daySummary[prevKey].arrow_length += 1;
 							return;
 						}
@@ -177,12 +180,21 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
 				}
 			});
 
-			dailySummary[day] = daySummary;
-		});
+			acc[day] = {
+				...dailyData,
+				summary: daySummary,
+			};
+
+			return acc;
+		}, {} as SkyflameWeatherOverview['daily']); 
 
 		return {
-			...overview,
-			daily_summary: dailySummary,
-		} as SkyflameWeatherOverview;
+			...baseOverview,
+			daily: newDaily,
+			current: {
+				...baseOverview.current,
+				beaufort_wind_scale: 0,
+			},
+		} as const satisfies SkyflameWeatherOverview;
 	}
 }
