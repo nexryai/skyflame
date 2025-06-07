@@ -2,42 +2,27 @@ import { IWeatherFetcher } from './openmeteo';
 import { OpenMeteoWeatherData } from '../types';
 
 
+// 指定されたプロパティをanyにし、継承先で任意の型に上書きできるようにする
 type Overwritable<T, K extends keyof T> = {
 	[P in keyof T]: P extends K ? any : T[P];
 };
 
-type Extend<T, U> = Omit<T, keyof U> & U;
+// 各プロパティの任意の型の配列を非配列に変換する
+type Flatten<T> = {
+	[P in keyof T]: T[P] extends Array<infer U> ? U : T[P];
+};
 
 // 本来であればOpen-Meteoの型とは別に定義するべきな気もするが、Open-Meteo自体はOSSなのでロックインのリスクがそこまで高くないこと、
 // 別のソースに切り替える際には少なからず取得できない情報が出てきて互換性の維持は結局できないと思われる点を踏まえ、型を拡張する形で実装する
 export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hourly' | 'daily'> {
 	hourly: Record<
 		string, // time
-		{
-			temperature_2m: number;
-			weather_code: number;
-			rain: number;
-			precipitation_probability: number;
-			precipitation: number;
-			showers: number;
-			snowfall: number;
-		}
+		Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time'>
 	>;
 	daily: Record<
 		string, // time
-		{
-			weather_code: number;
-			sunrise: string;
-			sunset: string;
-			uv_index_max: number;
-			uv_index_clear_sky_max: number;
-			temperature_2m_max: number;
-			temperature_2m_min: number;
-			daylight_duration: number;
-			sunshine_duration: number;
-		}
+		Omit<Flatten<OpenMeteoWeatherData['daily']>, 'time'>
 	>;
-	current: Extend<OpenMeteoWeatherData['current'], { beaufort_wind_scale: number }>;
 }
 
 export interface SkyflameWeatherOverview extends WeatherOverview {
@@ -47,18 +32,14 @@ export interface SkyflameWeatherOverview extends WeatherOverview {
 		// 天気の変動を格納
 		Record<
 			string, // 時間
-			{
-				weather_code: number;
-				temperature_2m_max: number;
-				temperature_2m_min: number;
-				precipitation_probability: number;
-				precipitation: number;
-				showers: number;
-				snowfall: number;
-				arrow_length: number; // 次の変動までの時間を示す矢印の長さ（次のRecordまでの時間の長さに比例）
+			Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time'> & { 
+				arrow_length: number; 
 			}
 		>
 	>;
+	current: OpenMeteoWeatherData['current'] & { 
+		beaufort_wind_scale: number 
+	};
 }
 
 export interface IWeatherService {
