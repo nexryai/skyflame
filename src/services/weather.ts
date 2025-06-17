@@ -12,7 +12,7 @@ type Flatten<T> = {
 };
 
 // Record<K, V> 型を受け取り、その値 V に新しいプロパティを追加する
-type AddPropToRecordValue<R extends Record<any, any>, P extends string | number | symbol, T> = {
+type AddPropToRecordValue<R extends Record<any, object>, P extends string | number | symbol, T> = {
     [K in keyof R]: R[K] & { [key in P]: T };
 };
 
