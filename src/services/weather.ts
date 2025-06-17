@@ -128,7 +128,6 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
     }
 
     public async getOverview(lat: number, lon: number): Promise<SkyflameWeatherOverview> {
-        // 親クラスのメソッドを呼び出し、基本的なWeatherOverviewを取得
         const baseOverview = await super.getOverview(lat, lon);
 
         // baseOverview.dailyを元に、summaryプロパティを持つ新しいdailyオブジェクトを生成
