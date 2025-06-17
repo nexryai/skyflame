@@ -77,7 +77,6 @@ export interface OpenMeteoWeatherData {
         sunrise: string;
         sunset: string;
         uv_index_max: string;
-        uv_index_clear_sky_max: string;
         temperature_2m_max: string;
         temperature_2m_min: string;
         daylight_duration: string;
@@ -89,7 +88,6 @@ export interface OpenMeteoWeatherData {
         sunrise: string[];
         sunset: string[];
         uv_index_max: number[];
-        uv_index_clear_sky_max: number[];
         temperature_2m_max: number[];
         temperature_2m_min: number[];
         daylight_duration: number[];

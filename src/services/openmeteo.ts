@@ -11,7 +11,6 @@ export const fetchWeatherData: IWeatherFetcher = async (lat, lon) => {
             'sunrise',
             'sunset',
             'uv_index_max',
-            'uv_index_clear_sky_max',
             'temperature_2m_max',
             'temperature_2m_min',
             'daylight_duration',

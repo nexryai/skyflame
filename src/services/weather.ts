@@ -66,7 +66,7 @@ export class WeatherService implements IWeatherService {
             ...data,
             hourly: data.hourly.time.reduce((acc, time, index) => {
                 acc[time] = {
-                    temperature_2m: data.hourly.temperature_2m[index],
+                    temperature_2m: Math.round(data.hourly.temperature_2m[index]),
                     weather_code: data.hourly.weather_code[index],
                     rain: data.hourly.rain[index],
                     precipitation_probability: data.hourly.precipitation_probability[index],
@@ -81,10 +81,9 @@ export class WeatherService implements IWeatherService {
                     weather_code: data.daily.weather_code[index],
                     sunrise: data.daily.sunrise[index],
                     sunset: data.daily.sunset[index],
-                    uv_index_max: data.daily.uv_index_max[index],
-                    uv_index_clear_sky_max: data.daily.uv_index_clear_sky_max[index],
-                    temperature_2m_max: data.daily.temperature_2m_max[index],
-                    temperature_2m_min: data.daily.temperature_2m_min[index],
+                    uv_index_max: Math.round(data.daily.uv_index_max[index]),
+                    temperature_2m_max: Math.round(data.daily.temperature_2m_max[index]),
+                    temperature_2m_min: Math.round(data.daily.temperature_2m_min[index]),
                     daylight_duration: data.daily.daylight_duration[index],
                     sunshine_duration: data.daily.sunshine_duration[index],
                 };
