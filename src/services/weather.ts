@@ -12,7 +12,7 @@ type Flatten<T> = {
 };
 
 // Record<K, V> 型を受け取り、その値 V に新しいプロパティを追加する
-type AddPropertyToRecordValue<R extends Record<any, any>, P extends string | number | symbol, T> = {
+type AddPropToRecordValue<R extends Record<any, any>, P extends string | number | symbol, T> = {
     [K in keyof R]: R[K] & { [key in P]: T };
 };
 
@@ -31,7 +31,7 @@ export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hou
 
 export interface SkyflameWeatherOverview extends WeatherOverview {
     // 翌日以降の天気を適切に表示するための拡張
-    daily: AddPropertyToRecordValue<WeatherOverview['daily'], 
+    daily: AddPropToRecordValue<WeatherOverview['daily'],
         'summary', Record<
             string, // 時間キー (e.g., "2025-06-08T09:00")
             Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time' | 'rain' | 'temperature_2m'> & {
