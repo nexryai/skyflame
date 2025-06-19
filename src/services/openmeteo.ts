@@ -42,7 +42,7 @@ export const fetchWeatherData: IWeatherFetcher = async (lat, lon) => {
 
     const response = await fetch(`${url}?${paramsString}`);
     if (!response.ok) {
-        console.error(response.body)
+        console.error(await response.text())
         throw new Error(`Failed to fetch weather data: ${response.statusText}`);
     }
 
