@@ -77,7 +77,7 @@ const app = new Elysia({ aot: false, precompile: true })
 
     .get('/v1/geocoding', async (ctx) => {
         const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
-        const cacheKey = `geocoding:result:${ctx.query}`;
+        const cacheKey = `geocoding:result:${ctx.query.query}`;
         const cachedData = await redis?.get(cacheKey);
 
         if (cachedData) {
@@ -100,7 +100,7 @@ const app = new Elysia({ aot: false, precompile: true })
 
     .get('/v1/geocoding/reverse', async (ctx) => {
         const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
-        const cacheKey = `geocoding:result:${ctx.query}`;
+        const cacheKey = `geocoding:result:${ctx.query.lat}:${ctx.query.lon}`;
         const cachedData = await redis?.get(cacheKey);
 
         if (cachedData) {
