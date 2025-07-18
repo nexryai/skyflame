@@ -5,7 +5,7 @@ export interface GeocodingResult extends Omit<NominationAPIGeoCodingData, 'licen
 
 export interface IGeocodingService {
     geocoding(query: string): Promise<GeocodingResult[]>;
-    reverseGeocoding(lat: string, lon: string): Promise<GeocodingResult[]>;
+    reverseGeocoding(lat: string, lon: string): Promise<GeocodingResult>;
 }
 
 export class GeocodingService implements IGeocodingService {
@@ -29,18 +29,18 @@ export class GeocodingService implements IGeocodingService {
         }));
     }
 
-    public async reverseGeocoding(lat: string, lon: string): Promise<GeocodingResult[]> {
+    public async reverseGeocoding(lat: string, lon: string): Promise<GeocodingResult> {
         const data = await this.reverseFetcher(lat, lon);
-        return data.map(item => ({
-            place_id: item.place_id,
-            name: item.name,
-            display_name: item.display_name,
-            lat: item.lat,
-            lon: item.lon,
-            category: item.category,
-            type: item.type,
-            addresstype: item.addresstype,
-            address: item.address
-        }));
+        return {
+            place_id: data.place_id,
+            name: data.name,
+            display_name: data.display_name,
+            lat: data.lat,
+            lon: data.lon,
+            category: data.category,
+            type: data.type,
+            addresstype: data.addresstype,
+            address: data.address
+        }
     }
 }

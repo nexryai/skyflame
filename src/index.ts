@@ -1,7 +1,12 @@
 import Elysia, { t } from 'elysia';
+
 import { Redis } from '@upstash/redis/cloudflare';
+
 import { fetchWeatherData } from '@/services/internal/openmeteo';
 import { SkyflameWeatherService, WeatherService } from '@/services/weather';
+import { fetchGeocodingData, fetchReverseGeocodingData } from '@/services/internal/openstreetmap';
+import { GeocodingService } from '@/services/geocoding';
+
 
 interface Env {
     SKYFLAME_KV: KVNamespace;
@@ -15,6 +20,7 @@ const app = new Elysia({ aot: false, precompile: true })
     .decorate('env', {} as Env)
     .decorate('weatherService', new WeatherService(fetchWeatherData))
     .decorate('skyflameWeatherService', new SkyflameWeatherService(fetchWeatherData))
+    .decorate('geocodingService', new GeocodingService(fetchGeocodingData, fetchReverseGeocodingData))
     .onError(({ code, error, set }) => {
         if (code === 'VALIDATION') {
             set.status = 400;
@@ -38,42 +44,83 @@ const app = new Elysia({ aot: false, precompile: true })
     })
 
     .get('/v1/overview', async (ctx) => {
-            const lat = ctx.query.lat || ctx.request.cf?.latitude;
-            const lon = ctx.query.lon || ctx.request.cf?.longitude;
+        const lat = ctx.query.lat || ctx.request.cf?.latitude;
+        const lon = ctx.query.lon || ctx.request.cf?.longitude;
 
-            if (!lat || !lon) {
-                return ctx.status(400, 'Latitude and longitude are required.');
-            }
-
-            const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
-            const cacheKey = ctx.query.withDailySummary
-                ? `weather:overviewWithDailySummary:${lat}:${lon}`
-                : `weather:overview:${lat}:${lon}`;
-            const cachedData = await redis?.get(cacheKey);
-
-            if (cachedData) {
-                return cachedData;
-            }
-
-            const weatherData = ctx.query.withDailySummary
-                ? ctx.skyflameWeatherService.getOverview(lat as number, lon as number)
-                : ctx.weatherService.getOverview(lat as number, lon as number);
-
-            await redis?.set(cacheKey, await weatherData, {
-                // 30 minutes cache duration
-                ex: 1800,
-            });
-
-            return weatherData;
-        },
-        {
-            query: t.Object({
-                lat: t.Optional(t.String()),
-                lon: t.Optional(t.Number()),
-                withDailySummary: t.Optional(t.Boolean()),
-            }),
+        if (!lat || !lon) {
+            return ctx.status(400, 'Latitude and longitude are required.');
         }
-    )
+
+        const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
+        const cacheKey = ctx.query.withDailySummary ? `weather:overviewWithDailySummary:${lat}:${lon}` : `weather:overview:${lat}:${lon}`;
+        const cachedData = await redis?.get(cacheKey);
+
+        if (cachedData) {
+            return cachedData;
+        }
+
+        const weatherData = ctx.query.withDailySummary ? ctx.skyflameWeatherService.getOverview(lat as number, lon as number) : ctx.weatherService.getOverview(lat as number, lon as number);
+
+        await redis?.set(cacheKey, await weatherData, {
+            // 30 minutes cache duration
+            ex: 1800,
+        });
+
+        return weatherData;
+    }, {
+        query: t.Object({
+            lat: t.Optional(t.String()),
+            lon: t.Optional(t.Number()),
+            withDailySummary: t.Optional(t.Boolean()),
+        }),
+    })
+
+    .get('/v1/geocoding', async (ctx) => {
+        const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
+        const cacheKey = `geocoding:result:${ctx.query}`;
+        const cachedData = await redis?.get(cacheKey);
+
+        if (cachedData) {
+            return cachedData;
+        }
+
+        const geocodingData = ctx.geocodingService.geocoding(ctx.query.query);
+
+        await redis?.set(cacheKey, await geocodingData, {
+            // 30 minutes cache duration
+            ex: 1800,
+        });
+
+        return geocodingData;
+    }, {
+        query: t.Object({
+            query: t.String(),
+        }),
+    })
+
+    .get('/v1/geocoding/reverse', async (ctx) => {
+        const redis = ctx.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv(ctx.env) : null;
+        const cacheKey = `geocoding:result:${ctx.query}`;
+        const cachedData = await redis?.get(cacheKey);
+
+        if (cachedData) {
+            return cachedData;
+        }
+
+        const geocodingData = ctx.geocodingService.reverseGeocoding(ctx.query.lat, ctx.query.lon);
+
+        await redis?.set(cacheKey, await geocodingData, {
+            // 30 minutes cache duration
+            ex: 1800,
+        });
+
+        return geocodingData;
+    }, {
+        query: t.Object({
+            lat: t.String(),
+            lon: t.String(),
+        }),
+    })
 
     .get('/healthz', async (ctx) => {
         ctx.env.SKYFLAME_KV.put('test', 'Hello, World!');

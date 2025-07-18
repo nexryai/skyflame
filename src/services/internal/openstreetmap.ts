@@ -36,16 +36,21 @@ export const fetchGeocodingData: IGeocodingFetcher = async (query) => {
     url.searchParams.set('addressdetails', '1');
     url.searchParams.set('limit', '10');
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(),{
+        headers: {
+            'User-Agent': 'Skyflame Weather Service (https://skyflame.nexryai.me)',
+        }
+    });
+    
     if (!response.ok) {
-        throw new Error(`Failed to fetch geocoding data: ${response.statusText}`);
+        throw new Error(`Failed to fetch reverse geocoding data: ${response.statusText}`);
     }
 
     return response.json() as Promise<NominationAPIGeoCodingData[]>;
 };
 
 
-export type IReverseGeocodingFetcher = (lat: string, lon: string) => Promise<NominationAPIGeoCodingData[]>;
+export type IReverseGeocodingFetcher = (lat: string, lon: string) => Promise<NominationAPIGeoCodingData>;
 
 export const fetchReverseGeocodingData: IReverseGeocodingFetcher = async (lat, lon) => {
     const url = new URL('https://nominatim.openstreetmap.org/reverse');
@@ -55,10 +60,15 @@ export const fetchReverseGeocodingData: IReverseGeocodingFetcher = async (lat, l
     url.searchParams.set('addressdetails', '1');
     url.searchParams.set('limit', '10');
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(),{
+        headers: {
+            'User-Agent': 'Skyflame Weather Service (https://skyflame.nexryai.me)',
+        }
+    });
+
     if (!response.ok) {
         throw new Error(`Failed to fetch reverse geocoding data: ${response.statusText}`);
     }
 
-    return response.json() as Promise<NominationAPIGeoCodingData[]>;
+    return response.json() as Promise<NominationAPIGeoCodingData>;
 };
