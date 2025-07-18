@@ -70,7 +70,7 @@ const app = new Elysia({ aot: false, precompile: true })
     }, {
         query: t.Object({
             lat: t.Optional(t.String()),
-            lon: t.Optional(t.Number()),
+            lon: t.Optional(t.String()),
             withDailySummary: t.Optional(t.Boolean()),
         }),
     })
