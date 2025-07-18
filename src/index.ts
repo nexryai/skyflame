@@ -1,7 +1,7 @@
 import Elysia, { t } from 'elysia';
 import { Redis } from '@upstash/redis/cloudflare';
-import { fetchWeatherData } from './services/openmeteo';
-import { SkyflameWeatherService, WeatherService } from './services/weather';
+import { fetchWeatherData } from '@/services/internal/openmeteo';
+import { SkyflameWeatherService, WeatherService } from '@/services/weather';
 
 interface Env {
     SKYFLAME_KV: KVNamespace;

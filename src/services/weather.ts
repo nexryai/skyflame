@@ -1,5 +1,5 @@
-import { IWeatherFetcher } from './openmeteo';
-import { OpenMeteoWeatherData, WindSpeedUnit } from '../types';
+import { IWeatherFetcher, type OpenMeteoWeatherData } from './internal/openmeteo';
+import { WindSpeedUnit } from '@/types';
 
 // 指定されたプロパティをanyにし、継承先で任意の型に上書きできるようにする
 type Overwritable<T, K extends keyof T> = {
