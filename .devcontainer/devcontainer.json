@@ -14,7 +14,6 @@
                 "esbenp.prettier-vscode"
             ],
             "settings": {
-                "editor.defaultFormatter": "esbenp.prettier-vscode",
                 "editor.linkedEditing": true,
                 "editor.formatOnPaste": true,
                 "editor.formatOnSave": false,
