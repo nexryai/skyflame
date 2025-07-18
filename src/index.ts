@@ -15,7 +15,7 @@ const app = new Elysia({ aot: false, precompile: true })
     .decorate('env', {} as Env)
     .decorate('weatherService', new WeatherService(fetchWeatherData))
     .decorate('skyflameWeatherService', new SkyflameWeatherService(fetchWeatherData))
-    .onError(({ code, error, set, body }) => {
+    .onError(({ code, error, set }) => {
         if (code === 'VALIDATION') {
             set.status = 400;
             return 'Invalid request format.';
@@ -37,9 +37,7 @@ const app = new Elysia({ aot: false, precompile: true })
         ctx.set.headers['Access-Control-Allow-Origin'] = '*';
     })
 
-    .get(
-        '/v1/overview',
-        async (ctx) => {
+    .get('/v1/overview', async (ctx) => {
             const lat = ctx.query.lat || ctx.request.cf?.latitude;
             const lon = ctx.query.lon || ctx.request.cf?.longitude;
 
