@@ -62,12 +62,21 @@ export class WeatherService implements IWeatherService {
         private readonly fetcher: IWeatherFetcher
     ) {}
 
+    private getTimeInDayMilliSeconds(date: Date): number {
+        return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000;
+    }
+
     public async getOverview(lat: number, lon: number): Promise<WeatherOverview> {
         const data = await this.fetcher(lat, lon);
+
+        const sunriseAt = this.getTimeInDayMilliSeconds(new Date(data.daily.sunrise[0]));
+        const sunsetAt = this.getTimeInDayMilliSeconds(new Date(data.daily.sunset[0]));
 
         return {
             ...data,
             hourly: data.hourly.time.reduce((acc, time, index) => {
+                const timeInDayMilliSeconds = this.getTimeInDayMilliSeconds(new Date(time));
+
                 acc[time] = {
                     temperature_2m: Math.round(data.hourly.temperature_2m[index]),
                     weather_code: data.hourly.weather_code[index],
@@ -76,6 +85,7 @@ export class WeatherService implements IWeatherService {
                     precipitation: data.hourly.precipitation[index],
                     showers: data.hourly.showers[index],
                     snowfall: data.hourly.snowfall[index],
+                    is_day: timeInDayMilliSeconds >= sunriseAt && timeInDayMilliSeconds < sunsetAt,
                 };
                 return acc;
             }, {} as Record<string, any>),
