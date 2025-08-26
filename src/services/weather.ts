@@ -21,7 +21,9 @@ type AddPropToRecordValue<R extends Record<any, object>, P extends string | numb
 export interface WeatherOverview extends Overwritable<OpenMeteoWeatherData, 'hourly' | 'daily'> {
     hourly: Record<
         string, // time
-        Omit<Flatten<OpenMeteoWeatherData['hourly']>, 'time'>
+        Omit<Flatten<OpenMeteoWeatherData['hourly'] & {
+            is_day: boolean;
+        }>, 'time'>
     >;
     daily: Record<
         string, // time
@@ -41,7 +43,8 @@ export interface SkyflameWeatherOverview extends WeatherOverview {
             }
         >
     >;
-    current: OpenMeteoWeatherData['current'] & {
+    current: Overwritable<OpenMeteoWeatherData['current'], 'is_day'> & {
+        is_day: boolean;
         beaufort_wind_scale: number;
     };
 }
@@ -215,6 +218,7 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
             daily: newDaily,
             current: {
                 ...baseOverview.current,
+                is_day: baseOverview.current.is_day === 1,
                 beaufort_wind_scale: this.getBeaufortWindScale(
                     baseOverview.current.wind_speed_10m,
                     baseOverview.current_units.wind_speed_10m
