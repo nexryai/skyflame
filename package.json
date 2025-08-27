@@ -1,6 +1,6 @@
 {
 	"name": "skyflame",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"author": "nexryai <nexryai@ablaze.one>",
 	"repository": {
 		"type": "git",
@@ -9,8 +9,8 @@
 	"type": "module",
 	"license": "MIT",
 	"description": "A JavaScript library for weather apps.",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "./index.js",
+	"types": "./index.d.ts",
 	"scripts": {
 		"build": "rm -rf dist && tsc && tsc-alias",
 		"test": "vitest"
