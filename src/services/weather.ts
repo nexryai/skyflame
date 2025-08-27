@@ -40,6 +40,7 @@ export interface SkyflameWeatherOverview extends WeatherOverview {
                 temperature_2m_max: number;
                 temperature_2m_min: number;
                 arrow_length: number;
+                is_day: boolean;
             }
         >
     >;
@@ -62,7 +63,7 @@ export class WeatherService implements IWeatherService {
         private readonly fetcher: IWeatherFetcher
     ) {}
 
-    private getTimeInDayMilliSeconds(date: Date): number {
+    protected getTimeInDayMilliSeconds(date: Date): number {
         return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000;
     }
 
@@ -211,6 +212,7 @@ export class SkyflameWeatherService extends WeatherService implements ISkyflameW
                         showers: hourData.showers,
                         snowfall: hourData.snowfall,
                         arrow_length: 1, // デフォルトの矢印の長さ
+                        is_day: hourData.is_day,
                     };
                 }
             });
