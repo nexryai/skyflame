@@ -1,22 +1,24 @@
 {
 	"name": "skyflame",
-	"version": "0.0.0",
-	"private": true,
+	"version": "0.0.1",
+	"author": "nexryai <nexryai@ablaze.one>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nexryai/skyflame"
+	},
+	"type": "module",
+	"license": "MIT",
+	"description": "A JavaScript library for weather apps.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev --ip 0.0.0.0",
-		"start": "wrangler dev",
-		"test": "vitest",
-		"cf-typegen": "wrangler types"
+		"build": "rm -r dist & tsc && tsc-alias",
+		"test": "vitest"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"@types/node": "^24.3.0",
+		"tsc-alias": "^1.8.16",
 		"typescript": "^5.5.2",
-		"vitest": "~3.0.7",
-		"wrangler": "^4.17.0"
-	},
-	"dependencies": {
-		"@upstash/redis": "^1.34.9",
-		"elysia": "1.3.20"
+		"vitest": "~3.0.7"
 	}
 }
