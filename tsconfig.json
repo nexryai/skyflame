@@ -45,5 +45,9 @@
 		"outDir": "./dist"
 	},
 	"exclude": ["test"],
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts"],
+	"tsc-alias": {
+		"resolveFullPaths": true,
+		"verbose": false
+	}
 }
