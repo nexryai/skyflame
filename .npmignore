@@ -1,0 +1,10 @@
+/.devcontainer
+/.github
+/.pnpm-store
+/.vscode
+/.editorconfig
+/.prettierrc
+/node_modules
+/src
+/test
+tsconfig.json
