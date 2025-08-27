@@ -30,7 +30,10 @@ jobs:
         run: pnpm install
         
       - name: Build package
-        run: pnpm build
+        run: |
+          pnpm build
+          mv dist/* ./
+          rm -r dist
 
       - name: Publish to NPM
         run: pnpm publish --no-git-checks --access public --provenance
